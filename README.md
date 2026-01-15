@@ -44,7 +44,8 @@ Ahz_LibSql/
 │   │   └── LibSqlBackendApplication.java
 │   └── src/main/resources/
 │       ├── application.yml      # 数据库与 JPA 配置
-│       └── library.sql          # 建库建表脚本 + 测试数据
+│       ├── library.sql          # 建库建表脚本 + 初始用户数据
+│       └── test.sql            # 测试数据（可选，用于开发测试）
 │
 ├── AhzLib-frontend/             # 前端工程（静态页面）
 │   ├── index.html               # 单页应用入口
@@ -177,7 +178,7 @@ Ahz_LibSql/
 ### 2. 准备数据库
 
 1. 启动本地 MySQL 服务
-2. 执行建库脚本：
+2. 执行建库脚本（创建表结构）：
 
    ```bash
    mysql -u root -p < AhzLib-backend/src/main/resources/library.sql
@@ -188,6 +189,23 @@ Ahz_LibSql/
    ```sql
    SOURCE path/to/AhzLib-backend/src/main/resources/library.sql;
    ```
+
+3. （可选）导入测试数据：
+
+   如果需要测试数据用于开发测试，可以执行：
+
+   ```bash
+   mysql -u root -p library < AhzLib-backend/src/main/resources/test.sql
+   ```
+
+   或在 MySQL 客户端中：
+
+   ```sql
+   USE library;
+   SOURCE path/to/AhzLib-backend/src/main/resources/test.sql;
+   ```
+
+   > 💡 注意：`test.sql` 包含测试数据，仅用于开发测试。生产环境请勿执行此脚本。
 
 ### 3. 配置后端
 

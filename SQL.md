@@ -4,16 +4,20 @@
 
 - **数据库名称**：`library`
 - **字符集**：`utf8mb4`
-- **存放路径**：`AhzLib-backend/src/main/resources/library.sql`
+- **SQL 脚本文件**：
+  - `AhzLib-backend/src/main/resources/library.sql`：建库建表脚本 + 初始用户数据
+  - `AhzLib-backend/src/main/resources/test.sql`：测试数据（可选，用于开发测试）
 - **主要内容**：
   - 用户与权限管理
   - 读者与读者类别配置
   - 作者与出版社信息
   - 图书基本信息与馆藏信息
   - 借阅记录与罚款缴费记录
-  - 完整的测试数据（便于前后端联调）
 
-> 说明：实际建库建表请直接执行 `library.sql`，本文件侧重表结构说明和字段含义。
+> 说明：
+> - `library.sql`：包含数据库和表结构定义，以及初始管理员用户数据
+> - `test.sql`：包含完整的测试数据，覆盖正常借阅、按时归还、超期归还、罚款缴费等典型业务场景，便于前后端联调测试
+> - 本文件侧重表结构说明和字段含义
 
 ---
 
@@ -354,13 +358,25 @@ CREATE TABLE fine_payment (
 
 ## 6. 测试数据说明
 
-`library.sql` 中包含完整的测试数据，覆盖了正常借阅、按时归还、超期归还、罚款缴费等典型业务场景，便于前后端联调测试。
+`test.sql` 中包含完整的测试数据，覆盖了正常借阅、按时归还、超期归还、罚款缴费等典型业务场景，便于前后端联调测试。
+
+**测试数据包括**：
+- 读者类别：学生、教师、社会读者
+- 出版社
+- 作者
+- 图书
+- 读者
+- 馆藏本
+- 借阅记录（包含正常借阅、按时归还、超期归还场景）
+- 罚款缴费记录
+
+> 💡 注意：`test.sql` 仅用于开发测试，生产环境请勿执行此脚本。
 
 ---
 
 ## 7. 使用说明
 
-1. **执行建库脚本**：
+1. **执行建库脚本**（创建表结构）：
 
    ```bash
    mysql -u root -p < AhzLib-backend/src/main/resources/library.sql
@@ -372,10 +388,29 @@ CREATE TABLE fine_payment (
    SOURCE path/to/AhzLib-backend/src/main/resources/library.sql;
    ```
 
-2. **配置后端**：
+   此脚本会创建数据库 `library` 和所有表结构，并插入初始管理员用户（用户名：`admin`，密码：`123456`）。
+
+2. **（可选）导入测试数据**：
+
+   如果需要测试数据用于开发测试，可以执行：
+
+   ```bash
+   mysql -u root -p library < AhzLib-backend/src/main/resources/test.sql
+   ```
+
+   或在 MySQL 客户端中：
+
+   ```sql
+   USE library;
+   SOURCE path/to/AhzLib-backend/src/main/resources/test.sql;
+   ```
+
+   > 💡 注意：`test.sql` 包含测试数据，仅用于开发测试。生产环境请勿执行此脚本。
+
+3. **配置后端**：
    修改 `AhzLib-backend/src/main/resources/application.yml` 中的数据库连接信息。
 
-3. **验证数据**：
+4. **验证数据**：
    登录系统后，可在前端界面查看各模块数据，或通过 Swagger UI 测试 API。
 
 ---
