@@ -15,7 +15,6 @@ import java.util.Arrays;
 
 @EnableWebSecurity
 @Configuration
-@SuppressWarnings("deprecation")
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override

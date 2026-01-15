@@ -13,16 +13,13 @@ public class BorrowService {
 
     private final ReaderRepository readerRepository;
     private final BookCopyRepository bookCopyRepository;
-    private final BookRepository bookRepository;
     private final BorrowRecordRepository borrowRecordRepository;
 
     public BorrowService(ReaderRepository readerRepository,
                          BookCopyRepository bookCopyRepository,
-                         BookRepository bookRepository,
                          BorrowRecordRepository borrowRecordRepository) {
         this.readerRepository = readerRepository;
         this.bookCopyRepository = bookCopyRepository;
-        this.bookRepository = bookRepository;
         this.borrowRecordRepository = borrowRecordRepository;
     }
 

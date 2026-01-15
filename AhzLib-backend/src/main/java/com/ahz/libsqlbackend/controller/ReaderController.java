@@ -9,6 +9,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/readers")
+@SuppressWarnings("null")
 public class ReaderController {
 
     private final ReaderRepository readerRepository;

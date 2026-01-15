@@ -9,6 +9,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/book-copies")
+@SuppressWarnings("null")
 public class BookCopyController {
 
     private final BookCopyRepository bookCopyRepository;

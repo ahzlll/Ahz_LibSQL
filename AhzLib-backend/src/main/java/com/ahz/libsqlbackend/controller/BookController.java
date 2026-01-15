@@ -9,6 +9,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/books")
+@SuppressWarnings("null")
 public class BookController {
 
     private final BookRepository bookRepository;

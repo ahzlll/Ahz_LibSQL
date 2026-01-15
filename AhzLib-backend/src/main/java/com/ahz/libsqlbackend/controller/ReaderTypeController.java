@@ -9,6 +9,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/reader-types")
+@SuppressWarnings("null")
 public class ReaderTypeController {
 
     private final ReaderTypeRepository readerTypeRepository;

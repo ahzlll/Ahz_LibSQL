@@ -9,6 +9,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/authors")
+@SuppressWarnings("null")
 public class AuthorController {
 
     private final AuthorRepository authorRepository;

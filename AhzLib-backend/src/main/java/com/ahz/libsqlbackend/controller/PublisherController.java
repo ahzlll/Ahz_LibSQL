@@ -9,6 +9,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/publishers")
+@SuppressWarnings("null")
 public class PublisherController {
 
     private final PublisherRepository publisherRepository;

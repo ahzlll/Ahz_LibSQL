@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 
 @Service
+@SuppressWarnings("null")
 public class FineService {
 
     private final ReaderRepository readerRepository;
