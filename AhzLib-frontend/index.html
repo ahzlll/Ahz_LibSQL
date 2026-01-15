@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <title>图书馆管理系统 - AhzLib</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body>
+    <div class="app-root">
+      <!-- 顶部植物主题背景 -->
+      <header class="app-header">
+        <div class="header-overlay"></div>
+        <div class="header-content">
+          <h1>AhzLib 图书馆</h1>
+          <p>安静阅读 · 高效管理</p>
+          <div class="header-meta">
+            <span id="header-clock"></span>
+            <span class="header-tip"
+              >小贴士：新增图书或读者后，记得及时维护读者类别与借阅规则</span
+            >
+          </div>
+        </div>
+        <div class="header-plant plant-left"></div>
+        <div class="header-plant plant-right"></div>
+      </header>
+
+      <!-- 登录面板 -->
+      <main class="auth-container" id="auth-view">
+        <section class="card auth-card">
+          <h2>管理员登录</h2>
+          <p class="auth-subtitle">使用账号登录管理系统</p>
+          <form id="login-form">
+            <div class="form-group">
+              <label for="username">用户名</label>
+              <input
+                id="username"
+                name="username"
+                type="text"
+                required
+                placeholder="例如：admin"
+              />
+            </div>
+            <div class="form-group">
+              <label for="password">密码</label>
+              <input
+                id="password"
+                name="password"
+                type="password"
+                required
+                placeholder="请输入密码"
+              />
+            </div>
+            <button type="submit" class="btn btn-primary btn-full">登录</button>
+            <p class="form-message" id="login-message"></p>
+          </form>
+        </section>
+      </main>
+
+      <!-- 主界面 -->
+      <main class="app-container" id="app-view" style="display: none">
+        <aside class="sidebar">
+          <div class="sidebar-user" id="sidebar-user">
+            <div class="avatar-circle">L</div>
+            <div>
+              <div class="user-name" id="user-name">管理员</div>
+              <div class="user-role" id="user-role">ADMIN</div>
+            </div>
+          </div>
+          <nav class="sidebar-nav">
+            <button class="nav-item active" data-view="dashboard-view">
+              仪表盘
+            </button>
+            <button class="nav-item" data-view="readers-view">读者管理</button>
+            <button class="nav-item" data-view="reader-types-view">
+              读者类别
+            </button>
+            <button class="nav-item" data-view="publishers-view">出版社</button>
+            <button class="nav-item" data-view="authors-view">作者</button>
+            <button class="nav-item" data-view="books-view">图书信息</button>
+            <button class="nav-item" data-view="book-copies-view">
+              馆藏信息
+            </button>
+            <button class="nav-item" data-view="borrow-view">图书借阅</button>
+            <button class="nav-item" data-view="return-view">图书归还</button>
+            <button class="nav-item" data-view="fines-view">罚款缴费</button>
+          </nav>
+          <button class="btn btn-ghost logout-btn" id="logout-btn">
+            退出登录
+          </button>
+        </aside>
+
+        <section class="content">
+          <!-- 仪表盘 -->
+          <section id="dashboard-view" class="content-view">
+            <h2>系统概览</h2>
+            <div class="grid grid-3">
+              <div class="card stat-card">
+                <div class="stat-label">读者总数</div>
+                <div class="stat-value" id="stat-readers">-</div>
+              </div>
+              <div class="card stat-card">
+                <div class="stat-label">图书总册数</div>
+                <div class="stat-value" id="stat-books">-</div>
+              </div>
+              <div class="card stat-card">
+                <div class="stat-label">当前在借</div>
+                <div class="stat-value" id="stat-borrowed">-</div>
+              </div>
+            </div>
+            <div class="card tips-card">
+              <h3>快速开始</h3>
+              <ol>
+                <li>
+                  在「读者类别」中配置借阅规则（最大借书数、借阅天数、罚款标准）。
+                </li>
+                <li>
+                  在「作者」「出版社」「图书信息」「馆藏信息」中录入基础数据。
+                </li>
+                <li>使用「图书借阅」「图书归还」模块完成日常业务。</li>
+              </ol>
+            </div>
+          </section>
+
+          <!-- 读者管理 -->
+          <section id="readers-view" class="content-view" style="display: none">
+            <div class="view-header">
+              <h2>读者管理</h2>
+              <button class="btn btn-primary" id="btn-add-reader">
+                新增读者
+              </button>
+            </div>
+            <div class="card">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>证号</th>
+                    <th>姓名</th>
+                    <th>类别</th>
+                    <th>已借数量</th>
+                    <th>总罚款</th>
+                    <th>操作</th>
+                  </tr>
+                </thead>
+                <tbody id="readers-tbody"></tbody>
+              </table>
+            </div>
+            <div
+              class="card form-card"
+              id="reader-form-card"
+              style="display: none"
+            >
+              <h3 id="reader-form-title">新增读者</h3>
+              <form id="reader-form">
+                <input type="hidden" id="reader-id" />
+                <div class="grid grid-2">
+                  <div class="form-group">
+                    <label for="reader-no">证号</label>
+                    <input id="reader-no" required />
+                  </div>
+                  <div class="form-group">
+                    <label for="reader-name">姓名</label>
+                    <input id="reader-name" required />
+                  </div>
+                  <div class="form-group">
+                    <label for="reader-gender">性别</label>
+                    <select id="reader-gender">
+                      <option value="">未设置</option>
+                      <option value="男">男</option>
+                      <option value="女">女</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label for="reader-type">读者类别</label>
+                    <select id="reader-type"></select>
+                  </div>
+                  <div class="form-group">
+                    <label for="reader-phone">电话</label>
+                    <input id="reader-phone" />
+                  </div>
+                  <div class="form-group">
+                    <label for="reader-email">邮箱</label>
+                    <input id="reader-email" />
+                  </div>
+                </div>
+                <div class="form-actions">
+                  <button type="submit" class="btn btn-primary">保存</button>
+                  <button
+                    type="button"
+                    class="btn btn-ghost"
+                    id="cancel-reader-edit"
+                  >
+                    取消
+                  </button>
+                </div>
+                <p class="form-message" id="reader-form-message"></p>
+              </form>
+            </div>
+          </section>
+
+          <!-- 其他模块的容器（读者类别、出版社、作者、图书、馆藏、借阅、归还、罚款） -->
+          <section
+            id="reader-types-view"
+            class="content-view"
+            style="display: none"
+          >
+            <h2>读者类别</h2>
+            <div class="card">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>名称</th>
+                    <th>最大借书数</th>
+                    <th>最大借阅天数</th>
+                    <th>每日罚款</th>
+                  </tr>
+                </thead>
+                <tbody id="reader-types-tbody"></tbody>
+              </table>
+            </div>
+          </section>
+
+          <section
+            id="publishers-view"
+            class="content-view"
+            style="display: none"
+          >
+            <h2>出版社管理</h2>
+            <div class="card">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>名称</th>
+                    <th>电话</th>
+                    <th>联系人</th>
+                  </tr>
+                </thead>
+                <tbody id="publishers-tbody"></tbody>
+              </table>
+            </div>
+          </section>
+
+          <section id="authors-view" class="content-view" style="display: none">
+            <h2>作者管理</h2>
+            <div class="card">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>姓名</th>
+                    <th>国家</th>
+                  </tr>
+                </thead>
+                <tbody id="authors-tbody"></tbody>
+              </table>
+            </div>
+          </section>
+
+          <section id="books-view" class="content-view" style="display: none">
+            <h2>图书信息</h2>
+            <div class="card">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>ISBN</th>
+                    <th>书名</th>
+                    <th>总册数</th>
+                    <th>可借册数</th>
+                  </tr>
+                </thead>
+                <tbody id="books-tbody"></tbody>
+              </table>
+            </div>
+          </section>
+
+          <section
+            id="book-copies-view"
+            class="content-view"
+            style="display: none"
+          >
+            <h2>馆藏信息</h2>
+            <div class="card">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>条码</th>
+                    <th>图书</th>
+                    <th>位置</th>
+                    <th>状态</th>
+                  </tr>
+                </thead>
+                <tbody id="book-copies-tbody"></tbody>
+              </table>
+            </div>
+          </section>
+
+          <section id="borrow-view" class="content-view" style="display: none">
+            <h2>图书借阅</h2>
+            <div class="card form-card">
+              <form id="borrow-form">
+                <div class="grid grid-2">
+                  <div class="form-group">
+                    <label for="borrow-reader-no">读者证号</label>
+                    <input id="borrow-reader-no" required />
+                  </div>
+                  <div class="form-group">
+                    <label for="borrow-barcode">图书条码</label>
+                    <input id="borrow-barcode" required />
+                  </div>
+                </div>
+                <div class="form-actions">
+                  <button class="btn btn-primary" type="submit">
+                    办理借阅
+                  </button>
+                </div>
+                <p class="form-message" id="borrow-message"></p>
+              </form>
+            </div>
+          </section>
+
+          <section id="return-view" class="content-view" style="display: none">
+            <h2>图书归还</h2>
+            <div class="card form-card">
+              <form id="return-form">
+                <div class="grid grid-2">
+                  <div class="form-group">
+                    <label for="return-reader-no">读者证号</label>
+                    <input id="return-reader-no" required />
+                  </div>
+                  <div class="form-group">
+                    <label for="return-barcode">图书条码</label>
+                    <input id="return-barcode" required />
+                  </div>
+                  <div class="form-group">
+                    <label>
+                      <input type="checkbox" id="return-lost-damaged" />
+                      损坏 / 遗失
+                    </label>
+                  </div>
+                  <div class="form-group">
+                    <label for="return-extra-fine">额外罚款</label>
+                    <input
+                      id="return-extra-fine"
+                      type="number"
+                      min="0"
+                      step="0.1"
+                      value="0"
+                    />
+                  </div>
+                </div>
+                <div class="form-actions">
+                  <button class="btn btn-primary" type="submit">
+                    办理归还
+                  </button>
+                </div>
+                <p class="form-message" id="return-message"></p>
+              </form>
+            </div>
+          </section>
+
+          <section id="fines-view" class="content-view" style="display: none">
+            <h2>罚款缴费</h2>
+            <div class="card form-card">
+              <form id="fine-form">
+                <div class="grid grid-2">
+                  <div class="form-group">
+                    <label for="fine-reader-id">读者ID</label>
+                    <input id="fine-reader-id" type="number" required />
+                  </div>
+                  <div class="form-group">
+                    <label for="fine-amount">缴费金额</label>
+                    <input
+                      id="fine-amount"
+                      type="number"
+                      min="0"
+                      step="0.1"
+                      required
+                    />
+                  </div>
+                  <div class="form-group">
+                    <label for="fine-remark">备注</label>
+                    <input id="fine-remark" />
+                  </div>
+                </div>
+                <div class="form-actions">
+                  <button class="btn btn-primary" type="submit">
+                    确认缴费
+                  </button>
+                </div>
+                <p class="form-message" id="fine-message"></p>
+              </form>
+            </div>
+          </section>
+        </section>
+      </main>
+    </div>
+
+    <div id="toast" class="toast"></div>
+
+    <script src="js/api.js"></script>
+    <script src="js/app.js"></script>
+  </body>
+</html>
