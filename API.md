@@ -5,7 +5,7 @@
 AhzLib 是一个基于 **Spring Boot + MySQL** 实现的图书馆管理系统，当前仓库包含：
 
 - 后端：`AhzLib-backend`（REST API，含 Swagger 文档）
-- 前端：`AhzLib-frontend`（纯 HTML + CSS + JS，绿色植物风格管理后台）
+- 前端：`AhzLib-frontend`（HTML + CSS + JS）
 
 > 本文档主要描述后端 REST 接口及与前端的对接方式，数据库表结构请参考 `SQL.md`。  
 > 在线接口文档可通过 Swagger 查看：`http://localhost:8080/swagger-ui.html`
