@@ -114,7 +114,7 @@
 
   // 全局浮动提示
   function showToast(text, isError) {
-    var toast = document.getElementById("toast");
+    const toast = document.getElementById("toast");
     if (!toast) return;
     toast.textContent = text;
     toast.classList.remove("error");
@@ -158,11 +158,11 @@
 
   // 顶部时钟
   (function initClock() {
-    var clock = document.getElementById("header-clock");
+    const clock = document.getElementById("header-clock");
     if (!clock) return;
     function tick() {
-      var now = new Date();
-      var s =
+      const now = new Date();
+      const s =
         now.getFullYear() +
         "-" +
         String(now.getMonth() + 1).padStart(2, "0") +
@@ -207,7 +207,7 @@
   // 侧边导航切换
   navItems.forEach(function (btn) {
     btn.addEventListener("click", function () {
-      const viewId = btn.getAttribute("data-view");
+      const viewId = btn.dataset.view;
       navItems.forEach(function (b) {
         b.classList.toggle("active", b === btn);
       });
@@ -312,7 +312,7 @@
             (r.name || "") +
             "</td>" +
             "<td>" +
-            (r.readerType && r.readerType.name ? r.readerType.name : "") +
+            (r.readerType?.name || "") +
             "</td>" +
             "<td>" +
             (r.borrowedCount || 0) +
@@ -558,7 +558,7 @@
               (c.barcode || "") +
               "</td>" +
               "<td>" +
-              (c.book && c.book.title ? c.book.title : "") +
+              (c.book?.title || "") +
               "</td>" +
               "<td>" +
               (c.location || "") +
@@ -695,8 +695,6 @@
   // 借阅记录分页状态
   let currentBorrowRecordsPage = 0;
   const borrowRecordsPageSize = 10; // 默认每页10条
-  const borrowRecordsMaxPageSize = 50; // 最大每页50条
-  const borrowRecordsTotalPages = 10; // 总共10页
 
   // 加载最近借阅记录（支持分页）
   function loadRecentBorrowRecords(page, size) {
@@ -799,7 +797,7 @@
     
     if (pageSizeSelect) {
       pageSizeSelect.addEventListener("change", function() {
-        const newSize = parseInt(this.value);
+        const newSize = Number.parseInt(this.value, 10);
         loadRecentBorrowRecords(0, newSize); // 切换每页条数时回到第一页
       });
     }
@@ -807,7 +805,7 @@
     // 绑定页码按钮
     paginationEl.querySelectorAll("button[data-page]").forEach(function(btn) {
       btn.addEventListener("click", function() {
-        const page = parseInt(this.dataset.page);
+        const page = Number.parseInt(this.dataset.page, 10);
         loadRecentBorrowRecords(page, pageSize);
       });
     });
@@ -856,7 +854,7 @@
         (item.totalFine ? item.totalFine.toFixed(2) : "0.00") +
         "</td>" +
         '<td><button class="btn btn-primary btn-small" data-action="pay" data-reader-no="' +
-        (item.readerNo || "").replace(/"/g, '&quot;') +
+        (item.readerNo || "").replaceAll('"', '&quot;') +
         '" data-amount="' +
         (item.totalFine || 0) +
         '">缴费</button></td>';
@@ -998,7 +996,7 @@
       // 创建表单行
       const formRow = document.createElement("tr");
       formRow.className = "edit-form-row";
-      formRow.innerHTML = '<td colspan="7" style="padding: 0;"><div class="card form-card" style="margin: 16px; border: none;"><h3>编辑读者</h3><form class="inline-edit-form"><input type="hidden" class="edit-id" value="' + (r.id || "") + '"><div class="grid grid-2"><div class="form-group"><label>证号</label><input class="edit-reader-no" value="' + (r.readerNo || "").replace(/"/g, '&quot;') + '" required></div><div class="form-group"><label>姓名</label><input class="edit-name" value="' + (r.name || "").replace(/"/g, '&quot;') + '" required></div><div class="form-group"><label>性别</label><select class="edit-gender"><option value="">未设置</option><option value="男"' + (r.gender === "男" ? ' selected' : '') + '>男</option><option value="女"' + (r.gender === "女" ? ' selected' : '') + '>女</option></select></div><div class="form-group"><label>读者类别</label><select class="edit-reader-type">' + readerTypeOptions + '</select></div><div class="form-group"><label>电话</label><input class="edit-phone" value="' + (r.phone || "").replace(/"/g, '&quot;') + '"></div><div class="form-group"><label>邮箱</label><input class="edit-email" value="' + (r.email || "").replace(/"/g, '&quot;') + '"></div></div><div class="form-actions"><button type="submit" class="btn btn-primary">保存</button><button type="button" class="btn btn-ghost cancel-inline-edit">取消</button></div><p class="form-message inline-edit-message"></p></form></div></td>';
+      formRow.innerHTML = '<td colspan="7" style="padding: 0;"><div class="card form-card" style="margin: 16px; border: none;"><h3>编辑读者</h3><form class="inline-edit-form"><input type="hidden" class="edit-id" value="' + (r.id || "") + '"><div class="grid grid-2"><div class="form-group"><label>证号</label><input class="edit-reader-no" value="' + (r.readerNo || "").replaceAll('"', '&quot;') + '" required></div><div class="form-group"><label>姓名</label><input class="edit-name" value="' + (r.name || "").replaceAll('"', '&quot;') + '" required></div><div class="form-group"><label>性别</label><select class="edit-gender"><option value="">未设置</option><option value="男"' + (r.gender === "男" ? ' selected' : '') + '>男</option><option value="女"' + (r.gender === "女" ? ' selected' : '') + '>女</option></select></div><div class="form-group"><label>读者类别</label><select class="edit-reader-type">' + readerTypeOptions + '</select></div><div class="form-group"><label>电话</label><input class="edit-phone" value="' + (r.phone || "").replaceAll('"', '&quot;') + '"></div><div class="form-group"><label>邮箱</label><input class="edit-email" value="' + (r.email || "").replaceAll('"', '&quot;') + '"></div></div><div class="form-actions"><button type="submit" class="btn btn-primary">保存</button><button type="button" class="btn btn-ghost cancel-inline-edit">取消</button></div><p class="form-message inline-edit-message"></p></form></div></td>';
       
       // 插入到目标行下方（跳过详情行）
       const nextSibling = targetRow.nextElementSibling;
@@ -1133,7 +1131,7 @@
       const readerNo = returnReaderNo.value.trim();
       const barcode = returnBarcode.value.trim();
       const lostOrDamaged = !!returnLostDamaged.checked;
-      const extraFine = parseFloat(returnExtraFine.value || "0");
+      const extraFine = Number.parseFloat(returnExtraFine.value || "0");
       if (!readerNo || !barcode) {
         showMessage(returnMessage, "请输入完整信息", true);
         return;
@@ -1143,7 +1141,7 @@
         readerNo: readerNo,
         barcode: barcode,
         lostOrDamaged: lostOrDamaged,
-        extraFine: isNaN(extraFine) ? 0 : extraFine,
+        extraFine: Number.isNaN(extraFine) ? 0 : extraFine,
       })
         .then(function (msg) {
           showMessage(
@@ -1235,9 +1233,9 @@
     fineForm.addEventListener("submit", function (e) {
       e.preventDefault();
       const readerNo = fineReaderNo.value.trim();
-      const amount = parseFloat(fineAmount.value || "0");
+      const amount = Number.parseFloat(fineAmount.value || "0");
       const remark = fineRemark.value.trim();
-      if (!readerNo || isNaN(amount) || amount <= 0) {
+      if (!readerNo || Number.isNaN(amount) || amount <= 0) {
         showMessage(fineMessage, "请输入正确的读者证号和金额", true);
         return;
       }
@@ -1303,7 +1301,7 @@
       const target = e.target;
       if (target.dataset && target.dataset.action === "pay") {
         const readerNo = target.dataset.readerNo;
-        const amount = parseFloat(target.dataset.amount) || 0;
+        const amount = Number.parseFloat(target.dataset.amount) || 0;
         if (readerNo) {
           // 自动填充缴费表单
           const fineReaderNoInput = document.getElementById("fine-reader-no");
@@ -1464,7 +1462,7 @@
       // 创建表单行
       const formRow = document.createElement("tr");
       formRow.className = "edit-form-row";
-      formRow.innerHTML = '<td colspan="5" style="padding: 0;"><div class="card form-card" style="margin: 16px; border: none;"><h3>编辑出版社</h3><form class="inline-edit-form"><input type="hidden" class="edit-id" value="' + (p.id || "") + '"><div class="grid grid-2"><div class="form-group"><label>名称</label><input class="edit-name" value="' + (p.name || "").replace(/"/g, '&quot;') + '" required></div><div class="form-group"><label>电话</label><input class="edit-phone" value="' + (p.phone || "").replace(/"/g, '&quot;') + '"></div><div class="form-group"><label>地址</label><input class="edit-address" value="' + (p.address || "").replace(/"/g, '&quot;') + '"></div><div class="form-group"><label>联系人</label><input class="edit-contact" value="' + (p.contact || "").replace(/"/g, '&quot;') + '"></div><div class="form-group" style="grid-column: 1 / -1"><label>备注</label><input class="edit-remark" value="' + (p.remark || "").replace(/"/g, '&quot;') + '"></div></div><div class="form-actions"><button type="submit" class="btn btn-primary">保存</button><button type="button" class="btn btn-ghost cancel-inline-edit">取消</button></div><p class="form-message inline-edit-message"></p></form></div></td>';
+      formRow.innerHTML = '<td colspan="5" style="padding: 0;"><div class="card form-card" style="margin: 16px; border: none;"><h3>编辑出版社</h3><form class="inline-edit-form"><input type="hidden" class="edit-id" value="' + (p.id || "") + '"><div class="grid grid-2"><div class="form-group"><label>名称</label><input class="edit-name" value="' + (p.name || "").replaceAll('"', '&quot;') + '" required></div><div class="form-group"><label>电话</label><input class="edit-phone" value="' + (p.phone || "").replaceAll('"', '&quot;') + '"></div><div class="form-group"><label>地址</label><input class="edit-address" value="' + (p.address || "").replaceAll('"', '&quot;') + '"></div><div class="form-group"><label>联系人</label><input class="edit-contact" value="' + (p.contact || "").replaceAll('"', '&quot;') + '"></div><div class="form-group" style="grid-column: 1 / -1"><label>备注</label><input class="edit-remark" value="' + (p.remark || "").replaceAll('"', '&quot;') + '"></div></div><div class="form-actions"><button type="submit" class="btn btn-primary">保存</button><button type="button" class="btn btn-ghost cancel-inline-edit">取消</button></div><p class="form-message inline-edit-message"></p></form></div></td>';
       
       // 插入到目标行下方
       targetRow.parentNode.insertBefore(formRow, targetRow.nextSibling);
@@ -1524,7 +1522,7 @@
   if (publisherForm) {
     publisherForm.addEventListener("submit", function (e) {
       e.preventDefault();
-      const id = publisherIdInput.value;
+      // const id = publisherIdInput.value; // 未使用的变量已移除
       const payload = {
         name: publisherNameInput.value.trim(),
         phone: publisherPhoneInput.value.trim(),
@@ -1662,7 +1660,7 @@
         // 创建表单行
         const formRow = document.createElement("tr");
         formRow.className = "edit-form-row";
-        formRow.innerHTML = '<td colspan="6" style="padding: 0;"><div class="card form-card" style="margin: 16px; border: none;"><h3>编辑图书</h3><form class="inline-edit-form"><input type="hidden" class="edit-id" value="' + (b.id || "") + '"><div class="grid grid-2"><div class="form-group"><label>ISBN</label><input class="edit-isbn" value="' + (b.isbn || "").replace(/"/g, '&quot;') + '" required></div><div class="form-group"><label>书名</label><input class="edit-title" value="' + (b.title || "").replace(/"/g, '&quot;') + '" required></div><div class="form-group"><label>出版社</label><select class="edit-publisher">' + publisherOptions + '</select></div><div class="form-group"><label>作者</label><select class="edit-author">' + authorOptions + '</select></div><div class="form-group"><label>出版年份</label><input type="number" class="edit-publish-year" value="' + (b.publishYear || "") + '"></div><div class="form-group"><label>分类</label><input class="edit-category" value="' + (b.category || "").replace(/"/g, '&quot;') + '"></div><div class="form-group"><label>总册数</label><input type="number" min="0" class="edit-total-copy" value="' + (b.totalCopy || 0) + '"></div><div class="form-group"><label>可借册数</label><input type="number" min="0" class="edit-available-copy" value="' + (b.availableCopy || 0) + '"></div></div><div class="form-actions"><button type="submit" class="btn btn-primary">保存</button><button type="button" class="btn btn-ghost cancel-inline-edit">取消</button></div><p class="form-message inline-edit-message"></p></form></div></td>';
+        formRow.innerHTML = '<td colspan="6" style="padding: 0;"><div class="card form-card" style="margin: 16px; border: none;"><h3>编辑图书</h3><form class="inline-edit-form"><input type="hidden" class="edit-id" value="' + (b.id || "") + '"><div class="grid grid-2"><div class="form-group"><label>ISBN</label><input class="edit-isbn" value="' + (b.isbn || "").replaceAll('"', '&quot;') + '" required></div><div class="form-group"><label>书名</label><input class="edit-title" value="' + (b.title || "").replaceAll('"', '&quot;') + '" required></div><div class="form-group"><label>出版社</label><select class="edit-publisher">' + publisherOptions + '</select></div><div class="form-group"><label>作者</label><select class="edit-author">' + authorOptions + '</select></div><div class="form-group"><label>出版年份</label><input type="number" class="edit-publish-year" value="' + (b.publishYear || "") + '"></div><div class="form-group"><label>分类</label><input class="edit-category" value="' + (b.category || "").replaceAll('"', '&quot;') + '"></div><div class="form-group"><label>总册数</label><input type="number" min="0" class="edit-total-copy" value="' + (b.totalCopy || 0) + '"></div><div class="form-group"><label>可借册数</label><input type="number" min="0" class="edit-available-copy" value="' + (b.availableCopy || 0) + '"></div></div><div class="form-actions"><button type="submit" class="btn btn-primary">保存</button><button type="button" class="btn btn-ghost cancel-inline-edit">取消</button></div><p class="form-message inline-edit-message"></p></form></div></td>';
         
         // 插入到目标行下方
         targetRow.parentNode.insertBefore(formRow, targetRow.nextSibling);
@@ -1871,7 +1869,7 @@
         showMessage(bookCopyBatchFormMsg, "请选择图书", true);
         return;
       }
-      const count = parseInt(batchBookCopyCountInput.value);
+      const count = Number.parseInt(batchBookCopyCountInput.value, 10);
       if (count <= 0 || count > 100) {
         showMessage(bookCopyBatchFormMsg, "添加数量必须在1-100之间", true);
         return;
@@ -1949,7 +1947,7 @@
       // 创建表单行
       const formRow = document.createElement("tr");
       formRow.className = "edit-form-row";
-      formRow.innerHTML = '<td colspan="6" style="padding: 0;"><div class="card form-card" style="margin: 16px; border: none;"><h3>编辑馆藏</h3><form class="inline-edit-form"><input type="hidden" class="edit-id" value="' + (c.id || "") + '"><div class="grid grid-2"><div class="form-group"><label>条码</label><input class="edit-barcode" value="' + (c.barcode || "").replace(/"/g, '&quot;') + '" required></div><div class="form-group"><label>图书</label><select class="edit-book" required>' + bookOptions + '</select></div><div class="form-group"><label>位置</label><input class="edit-location" value="' + (c.location || "").replace(/"/g, '&quot;') + '"></div><div class="form-group"><label>状态</label><select class="edit-status" required><option value="IN_LIBRARY"' + (c.status === "IN_LIBRARY" ? ' selected' : '') + '>在馆</option><option value="BORROWED"' + (c.status === "BORROWED" ? ' selected' : '') + '>已借出</option><option value="LOST"' + (c.status === "LOST" ? ' selected' : '') + '>丢失</option><option value="DAMAGED"' + (c.status === "DAMAGED" ? ' selected' : '') + '>损坏</option></select></div></div><div class="form-actions"><button type="submit" class="btn btn-primary">保存</button><button type="button" class="btn btn-ghost cancel-inline-edit">取消</button></div><p class="form-message inline-edit-message"></p></form></div></td>';
+      formRow.innerHTML = '<td colspan="6" style="padding: 0;"><div class="card form-card" style="margin: 16px; border: none;"><h3>编辑馆藏</h3><form class="inline-edit-form"><input type="hidden" class="edit-id" value="' + (c.id || "") + '"><div class="grid grid-2"><div class="form-group"><label>条码</label><input class="edit-barcode" value="' + (c.barcode || "").replaceAll('"', '&quot;') + '" required></div><div class="form-group"><label>图书</label><select class="edit-book" required>' + bookOptions + '</select></div><div class="form-group"><label>位置</label><input class="edit-location" value="' + (c.location || "").replaceAll('"', '&quot;') + '"></div><div class="form-group"><label>状态</label><select class="edit-status" required><option value="IN_LIBRARY"' + (c.status === "IN_LIBRARY" ? ' selected' : '') + '>在馆</option><option value="BORROWED"' + (c.status === "BORROWED" ? ' selected' : '') + '>已借出</option><option value="LOST"' + (c.status === "LOST" ? ' selected' : '') + '>丢失</option><option value="DAMAGED"' + (c.status === "DAMAGED" ? ' selected' : '') + '>损坏</option></select></div></div><div class="form-actions"><button type="submit" class="btn btn-primary">保存</button><button type="button" class="btn btn-ghost cancel-inline-edit">取消</button></div><p class="form-message inline-edit-message"></p></form></div></td>';
       
       // 插入到目标行下方
       targetRow.parentNode.insertBefore(formRow, targetRow.nextSibling);
@@ -2071,7 +2069,7 @@
       
       const formRow = document.createElement("tr");
       formRow.className = "edit-form-row";
-      formRow.innerHTML = '<td colspan="6" style="padding: 0;"><div class="card form-card" style="margin: 16px; border: none;"><h3>编辑读者类别</h3><form class="inline-edit-form"><input type="hidden" class="edit-id" value="' + (t.id || "") + '"><div class="grid grid-2"><div class="form-group"><label>名称</label><input class="edit-name" value="' + (t.name || "").replace(/"/g, '&quot;') + '" required></div><div class="form-group"><label>最大借书数</label><input class="edit-max-borrow-count" type="number" min="1" value="' + (t.maxBorrowCount || 0) + '" required></div><div class="form-group"><label>最大借阅天数</label><input class="edit-max-borrow-days" type="number" min="1" value="' + (t.maxBorrowDays || 0) + '" required></div><div class="form-group"><label>每日罚款（元）</label><input class="edit-fine-rate" type="number" min="0" step="0.01" value="' + (t.fineRatePerDay || 0) + '" required></div></div><div class="form-actions"><button type="submit" class="btn btn-primary">保存</button><button type="button" class="btn btn-ghost cancel-inline-edit">取消</button></div><p class="form-message inline-edit-message"></p></form></div></td>';
+      formRow.innerHTML = '<td colspan="6" style="padding: 0;"><div class="card form-card" style="margin: 16px; border: none;"><h3>编辑读者类别</h3><form class="inline-edit-form"><input type="hidden" class="edit-id" value="' + (t.id || "") + '"><div class="grid grid-2"><div class="form-group"><label>名称</label><input class="edit-name" value="' + (t.name || "").replaceAll('"', '&quot;') + '" required></div><div class="form-group"><label>最大借书数</label><input class="edit-max-borrow-count" type="number" min="1" value="' + (t.maxBorrowCount || 0) + '" required></div><div class="form-group"><label>最大借阅天数</label><input class="edit-max-borrow-days" type="number" min="1" value="' + (t.maxBorrowDays || 0) + '" required></div><div class="form-group"><label>每日罚款（元）</label><input class="edit-fine-rate" type="number" min="0" step="0.01" value="' + (t.fineRatePerDay || 0) + '" required></div></div><div class="form-actions"><button type="submit" class="btn btn-primary">保存</button><button type="button" class="btn btn-ghost cancel-inline-edit">取消</button></div><p class="form-message inline-edit-message"></p></form></div></td>';
       
       targetRow.parentNode.insertBefore(formRow, targetRow.nextSibling);
       formRow.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
@@ -2082,9 +2080,9 @@
         const editId = formRow.querySelector(".edit-id").value;
         const payload = {
           name: formRow.querySelector(".edit-name").value.trim(),
-          maxBorrowCount: parseInt(formRow.querySelector(".edit-max-borrow-count").value),
-          maxBorrowDays: parseInt(formRow.querySelector(".edit-max-borrow-days").value),
-          fineRatePerDay: parseFloat(formRow.querySelector(".edit-fine-rate").value),
+          maxBorrowCount: Number.parseInt(formRow.querySelector(".edit-max-borrow-count").value, 10),
+          maxBorrowDays: Number.parseInt(formRow.querySelector(".edit-max-borrow-days").value, 10),
+          fineRatePerDay: Number.parseFloat(formRow.querySelector(".edit-fine-rate").value),
         };
         const msgEl = formRow.querySelector(".inline-edit-message");
         msgEl.textContent = "正在保存...";
@@ -2127,9 +2125,9 @@
       e.preventDefault();
       const payload = {
         name: readerTypeNameInput.value.trim(),
-        maxBorrowCount: parseInt(readerTypeMaxBorrowCountInput.value),
-        maxBorrowDays: parseInt(readerTypeMaxBorrowDaysInput.value),
-        fineRatePerDay: parseFloat(readerTypeFineRateInput.value),
+        maxBorrowCount: Number.parseInt(readerTypeMaxBorrowCountInput.value, 10),
+        maxBorrowDays: Number.parseInt(readerTypeMaxBorrowDaysInput.value, 10),
+        fineRatePerDay: Number.parseFloat(readerTypeFineRateInput.value),
       };
       showMessage(readerTypeFormMsg, "正在保存...", false);
       Api.createReaderType(payload)
@@ -2207,7 +2205,7 @@
       
       const formRow = document.createElement("tr");
       formRow.className = "edit-form-row";
-      formRow.innerHTML = '<td colspan="4" style="padding: 0;"><div class="card form-card" style="margin: 16px; border: none;"><h3>编辑作者</h3><form class="inline-edit-form"><input type="hidden" class="edit-id" value="' + (a.id || "") + '"><div class="grid grid-2"><div class="form-group"><label>姓名</label><input class="edit-name" value="' + (a.name || "").replace(/"/g, '&quot;') + '" required></div><div class="form-group"><label>国家</label><input class="edit-country" value="' + (a.country || "").replace(/"/g, '&quot;') + '"></div><div class="form-group" style="grid-column: 1 / -1"><label>备注</label><input class="edit-remark" value="' + (a.remark || "").replace(/"/g, '&quot;') + '"></div></div><div class="form-actions"><button type="submit" class="btn btn-primary">保存</button><button type="button" class="btn btn-ghost cancel-inline-edit">取消</button></div><p class="form-message inline-edit-message"></p></form></div></td>';
+      formRow.innerHTML = '<td colspan="4" style="padding: 0;"><div class="card form-card" style="margin: 16px; border: none;"><h3>编辑作者</h3><form class="inline-edit-form"><input type="hidden" class="edit-id" value="' + (a.id || "") + '"><div class="grid grid-2"><div class="form-group"><label>姓名</label><input class="edit-name" value="' + (a.name || "").replaceAll('"', '&quot;') + '" required></div><div class="form-group"><label>国家</label><input class="edit-country" value="' + (a.country || "").replaceAll('"', '&quot;') + '"></div><div class="form-group" style="grid-column: 1 / -1"><label>备注</label><input class="edit-remark" value="' + (a.remark || "").replaceAll('"', '&quot;') + '"></div></div><div class="form-actions"><button type="submit" class="btn btn-primary">保存</button><button type="button" class="btn btn-ghost cancel-inline-edit">取消</button></div><p class="form-message inline-edit-message"></p></form></div></td>';
       
       targetRow.parentNode.insertBefore(formRow, targetRow.nextSibling);
       formRow.scrollIntoView({ behavior: 'smooth', block: 'nearest' });

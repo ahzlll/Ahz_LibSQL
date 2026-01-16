@@ -1,55 +1,70 @@
 const API_BASE = "http://localhost:8080";
 
+// 解析响应文本为JSON或原始文本
+function parseResponse(text) {
+  if (!text) return null;
+  try {
+    return JSON.parse(text);
+  } catch {
+    // 如果JSON解析失败，使用原始文本（这是预期的行为）
+    return text;
+  }
+}
+
+// 从响应数据中提取错误消息
+function extractErrorMessage(data, status) {
+  if (typeof data === "string") {
+    return data || `请求失败 (${status})`;
+  }
+  if (data) {
+    // 如果是对象，尝试多种可能的字段
+    if (data.message || data.error || data.msg || data.errorMessage) {
+      return data.message || data.error || data.msg || data.errorMessage;
+    }
+    if (typeof data === "object" && Object.keys(data).length > 0) {
+      return JSON.stringify(data);
+    }
+    return `请求失败 (${status})`;
+  }
+  // 如果没有响应体，根据状态码提供默认消息
+  return getDefaultErrorMessage(status);
+}
+
+// 处理API错误
+function handleApiError(err) {
+  // 如果是网络错误
+  if (err.name === "TypeError" && err.message.includes("fetch")) {
+    console.error("API error: Network error", err);
+    throw new Error("网络连接失败，请检查服务器是否运行");
+  }
+  // 如果错误已经有消息，直接抛出
+  if (err.message) {
+    console.error("API error:", err.message);
+    throw err;
+  }
+  // 否则提供默认错误消息
+  console.error("API error", err);
+  throw new Error(err.message || "请求失败，请稍后重试");
+}
+
 async function apiRequest(path, options) {
   const url = API_BASE + path;
   const defaultHeaders = {
     "Content-Type": "application/json",
   };
-  const opts = Object.assign({ headers: defaultHeaders }, options || {});
+  const opts = { headers: defaultHeaders, ...options };
   try {
     const resp = await fetch(url, opts);
     const text = await resp.text();
-    let data;
-    try {
-      data = text ? JSON.parse(text) : null;
-    } catch (e) {
-      data = text;
-    }
+    const data = parseResponse(text);
+    
     if (!resp.ok) {
-      // 提取错误消息的多种方式
-      let message = "请求失败";
-      
-      if (typeof data === "string") {
-        // 如果响应是纯字符串，直接使用
-        message = data || `请求失败 (${resp.status})`;
-      } else if (data) {
-        // 如果是对象，尝试多种可能的字段
-        message = data.message || data.error || data.msg || data.errorMessage || 
-                  (typeof data === "object" && Object.keys(data).length > 0 
-                    ? JSON.stringify(data) 
-                    : `请求失败 (${resp.status})`);
-      } else {
-        // 如果没有响应体，根据状态码提供默认消息
-        message = getDefaultErrorMessage(resp.status);
-      }
-      
+      const message = extractErrorMessage(data, resp.status);
       throw new Error(message);
     }
     return data;
   } catch (err) {
-    // 如果是网络错误或其他错误
-    if (err.name === "TypeError" && err.message.includes("fetch")) {
-      console.error("API error: Network error", err);
-      throw new Error("网络连接失败，请检查服务器是否运行");
-    }
-    // 如果错误已经有消息，直接抛出
-    if (err.message) {
-      console.error("API error:", err.message);
-      throw err;
-    }
-    // 否则提供默认错误消息
-    console.error("API error", err);
-    throw new Error(err.message || "请求失败，请稍后重试");
+    handleApiError(err);
   }
 }
 
@@ -241,9 +256,7 @@ const Api = {
   getAllUnreturnedRecords() {
     return apiRequest("/api/borrow-records/unreturned", { method: "GET" });
   },
-  getRecentBorrowRecords(page, size) {
-    page = page || 0;
-    size = size || 10;
+  getRecentBorrowRecords(page = 0, size = 10) {
     return apiRequest(
       "/api/borrow-records/recent?page=" + page + "&size=" + size,
       { method: "GET" }
