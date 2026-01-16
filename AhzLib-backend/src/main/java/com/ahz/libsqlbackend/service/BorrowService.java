@@ -47,9 +47,11 @@ public class BorrowService {
         }
 
         Book book = copy.getBook();
-        if (book.getAvailableCopy() == null || book.getAvailableCopy() <= 0) {
-            throw new RuntimeException("该图书暂无可借库存");
+        if (book == null) {
+            throw new RuntimeException("馆藏关联的图书信息不存在");
         }
+        // 移除对availableCopy的检查，因为已经通过馆藏状态验证了可借性
+        // availableCopy字段可能不同步，应该根据实际馆藏状态来判断
 
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime due = now.plusDays(type.getMaxBorrowDays());
@@ -65,14 +67,40 @@ public class BorrowService {
         borrowRecordRepository.save(record);
 
         copy.setStatus("BORROWED");
-        book.setAvailableCopy(book.getAvailableCopy() - 1);
+        // 更新可借册数，如果为null则初始化为0
+        int currentAvailable = book.getAvailableCopy() == null ? 0 : book.getAvailableCopy();
+        book.setAvailableCopy(Math.max(0, currentAvailable - 1));
         reader.setBorrowedCount((reader.getBorrowedCount() == null ? 0 : reader.getBorrowedCount()) + 1);
 
         return "借阅成功，应还日期：" + due.toLocalDate();
     }
 
+    public static class ReturnResult {
+        private double fine;
+        private boolean isOverdue;
+        private boolean isLost;
+
+        public ReturnResult(double fine, boolean isOverdue, boolean isLost) {
+            this.fine = fine;
+            this.isOverdue = isOverdue;
+            this.isLost = isLost;
+        }
+
+        public double getFine() {
+            return fine;
+        }
+
+        public boolean isOverdue() {
+            return isOverdue;
+        }
+
+        public boolean isLost() {
+            return isLost;
+        }
+    }
+
     @Transactional
-    public double returnBook(String readerNo, String barcode, boolean lostOrDamaged, double extraFine) {
+    public ReturnResult returnBook(String readerNo, String barcode, boolean lostOrDamaged, double extraFine) {
         Reader reader = readerRepository.findByReaderNo(readerNo)
                 .orElseThrow(() -> new RuntimeException("读者不存在"));
         BookCopy copy = bookCopyRepository.findByBarcode(barcode)
@@ -87,7 +115,11 @@ public class BorrowService {
 
         long daysOver = 0;
         double fine = 0.0;
+        boolean isOverdue = false;
         ReaderType type = reader.getReaderType();
+        if (type == null) {
+            throw new RuntimeException("读者类别未设置");
+        }
         if (now.isAfter(record.getDueDate())) {
             daysOver = Duration.between(record.getDueDate(), now).toDays();
             if (daysOver < 0) {
@@ -95,24 +127,45 @@ public class BorrowService {
             }
             fine += daysOver * type.getFineRatePerDay();
             record.setIsOverdue(1);
+            isOverdue = true;
+        } else {
+            record.setIsOverdue(0);
         }
 
-        if (lostOrDamaged) {
+        // 无论是否损坏，都要加上额外罚款（如果有）
+        if (extraFine > 0) {
             fine += extraFine;
+        }
+        
+        if (lostOrDamaged) {
             record.setStatus("LOST");
             copy.setStatus("LOST");
         } else {
             record.setStatus("RETURNED");
             copy.setStatus("IN_LIBRARY");
             Book book = copy.getBook();
-            book.setAvailableCopy(book.getAvailableCopy() + 1);
+            if (book != null) {
+                int currentAvailable = book.getAvailableCopy() == null ? 0 : book.getAvailableCopy();
+                book.setAvailableCopy(currentAvailable + 1);
+            }
         }
 
         record.setFineAmount(fine);
+        // 保存借阅记录，确保罚款金额和状态更新到数据库
+        borrowRecordRepository.save(record);
+        
         reader.setBorrowedCount((reader.getBorrowedCount() == null ? 0 : reader.getBorrowedCount()) - 1);
-        reader.setTotalFine((reader.getTotalFine() == null ? 0.0 : reader.getTotalFine()) + fine);
+        // 更新读者的总罚款，确保保存到数据库
+        double currentTotalFine = reader.getTotalFine() == null ? 0.0 : reader.getTotalFine();
+        reader.setTotalFine(currentTotalFine + fine);
+        // 显式保存读者信息，确保totalFine更新到数据库
+        readerRepository.save(reader);
+        
+        // 注意：归还时产生的罚款只更新 totalFine，不创建 FinePayment 记录
+        // FinePayment 应该只记录已缴费的记录，只有用户缴费时才创建 FinePayment
+        // 归还时产生的罚款信息保存在 BorrowRecord.fineAmount 中
 
-        return fine;
+        return new ReturnResult(fine, isOverdue, lostOrDamaged);
     }
 }
 
