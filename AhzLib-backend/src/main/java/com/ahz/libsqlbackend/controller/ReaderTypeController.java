@@ -1,7 +1,9 @@
 package com.ahz.libsqlbackend.controller;
 
 import com.ahz.libsqlbackend.entity.ReaderType;
+import com.ahz.libsqlbackend.repository.ReaderRepository;
 import com.ahz.libsqlbackend.repository.ReaderTypeRepository;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -13,9 +15,12 @@ import java.util.List;
 public class ReaderTypeController {
 
     private final ReaderTypeRepository readerTypeRepository;
+    private final ReaderRepository readerRepository;
 
-    public ReaderTypeController(ReaderTypeRepository readerTypeRepository) {
+    public ReaderTypeController(ReaderTypeRepository readerTypeRepository,
+                                ReaderRepository readerRepository) {
         this.readerTypeRepository = readerTypeRepository;
+        this.readerRepository = readerRepository;
     }
 
     @GetMapping
@@ -45,8 +50,22 @@ public class ReaderTypeController {
         if (!readerTypeRepository.existsById(id)) {
             return ResponseEntity.notFound().build();
         }
-        readerTypeRepository.deleteById(id);
-        return ResponseEntity.ok().build();
+        
+        // 检查是否有读者使用该读者类别
+        long readerCount = readerRepository.countByReaderTypeId(id);
+        if (readerCount > 0) {
+            return ResponseEntity.badRequest().body("该读者类别正在被 " + readerCount + " 位读者使用，不能删除。请先修改或删除相关读者。");
+        }
+        
+        try {
+            readerTypeRepository.deleteById(id);
+            return ResponseEntity.ok().build();
+        } catch (DataIntegrityViolationException e) {
+            return ResponseEntity.badRequest().body("该读者类别存在关联数据，不能删除");
+        } catch (Exception e) {
+            String errorMsg = e.getMessage();
+            return ResponseEntity.status(500).body("删除失败：" + (errorMsg != null ? errorMsg : e.getClass().getSimpleName()));
+        }
     }
 }
 
