@@ -78,7 +78,12 @@ INSERT INTO reader (id, reader_no, name, gender, phone, email, reader_type_id, b
   (16, 'S2026003', '社会读者丙', '男', '13700000003', 'society3@example.com', 3, 1, 0.00, 1, NOW() - INTERVAL 15 DAY),
   (17, 'S2026004', '社会读者丁', '女', '13700000004', 'society4@example.com', 3, 0, 0.00, 1, NOW() - INTERVAL 10 DAY),
   (18, 'R2026009', '冯十一', '男', '13800000009', 'fengshiyi@example.com', 1, 0, 0.00, 0, NOW() - INTERVAL 90 DAY),
-  (19, 'R2026010', '陈十二', '女', '13800000010', 'chenshier@example.com', 1, 0, 0.00, 1, NOW() - INTERVAL 3 DAY);
+  (19, 'R2026010', '陈十二', '女', '13800000010', 'chenshier@example.com', 1, 1, 0.00, 1, NOW() - INTERVAL 3 DAY),
+  -- 有未缴费罚款的读者
+  (20, 'R2026011', '逾期读者一', '男', '13800000011', 'overdue1@example.com', 1, 2, 15.50, 1, NOW() - INTERVAL 5 DAY),
+  (21, 'R2026012', '逾期读者二', '女', '13800000012', 'overdue2@example.com', 1, 1, 8.00, 1, NOW() - INTERVAL 8 DAY),
+  (22, 'T2026006', '逾期教师一', '男', '13900000006', 'overdueteacher1@example.com', 2, 3, 12.40, 1, NOW() - INTERVAL 10 DAY),
+  (23, 'S2026005', '逾期社会读者', '女', '13700000005', 'overduesociety1@example.com', 3, 1, 25.00, 1, NOW() - INTERVAL 7 DAY);
 
 -- 测试数据：馆藏本
 INSERT INTO book_copy (id, book_id, barcode, location, status) VALUES
@@ -210,7 +215,19 @@ INSERT INTO book_copy (id, book_id, barcode, location, status) VALUES
   (101, 25, 'BCO003', '一楼 A 区 21 排', 'IN_LIBRARY'),
   -- 遗失和损坏的馆藏本
   (102, 2, 'BC1004', '二楼 C 区 02 排', 'LOST'),
-  (103, 6, 'BC5005', '三楼 B 区 08 排', 'DAMAGED');
+  (103, 6, 'BC5005', '三楼 B 区 08 排', 'DAMAGED'),
+  -- 为逾期借阅添加的馆藏本
+  (104, 1, 'BC0005', '一楼 A 区 01 排', 'BORROWED'),
+  (105, 2, 'BC1005', '二楼 C 区 01 排', 'BORROWED'),
+  (106, 5, 'BC4006', '三楼 B 区 03 排', 'BORROWED'),
+  (107, 7, 'BC6007', '一楼 A 区 03 排', 'BORROWED'),
+  (108, 11, 'BCA005', '三楼 B 区 08 排', 'BORROWED'),
+  (109, 13, 'BCC007', '三楼 B 区 12 排', 'BORROWED'),
+  (110, 17, 'BCG006', '二楼 C 区 03 排', 'BORROWED'),
+  (111, 20, 'BCJ006', '一楼 A 区 13 排', 'BORROWED'),
+  (112, 21, 'BCK004', '一楼 A 区 16 排', 'BORROWED'),
+  (113, 16, 'BCF004', '二楼 E 区 03 排', 'BORROWED'),
+  (114, 21, 'BCK005', '一楼 A 区 16 排', 'BORROWED');
 
 -- 测试数据：借阅记录
 -- 正在借阅的记录（27条）
@@ -239,7 +256,20 @@ INSERT INTO borrow_record (id, reader_id, book_copy_id, borrow_date, due_date, r
   (24, 15, 32, NOW() - INTERVAL 8 DAY, NOW() + INTERVAL 12 DAY, NULL, 'BORROWED', 0.00, 0),
   (25, 15, 44, NOW() - INTERVAL 5 DAY, NOW() + INTERVAL 15 DAY, NULL, 'BORROWED', 0.00, 0),
   (26, 16, 59, NOW() - INTERVAL 18 DAY, NOW() + INTERVAL 2 DAY, NULL, 'BORROWED', 0.00, 1),
-  (27, 16, 70, NOW() - INTERVAL 10 DAY, NOW() + INTERVAL 10 DAY, NULL, 'BORROWED', 0.00, 0);
+  (27, 16, 70, NOW() - INTERVAL 10 DAY, NOW() + INTERVAL 10 DAY, NULL, 'BORROWED', 0.00, 0),
+  -- 逾期借阅记录（应还日期在2026-01-16之前）
+  (43, 1, 2, '2025-12-10 10:00:00', '2026-01-09 23:59:59', NULL, 'BORROWED', 0.00, 1),
+  (44, 2, 5, '2025-12-15 14:00:00', '2026-01-14 23:59:59', NULL, 'BORROWED', 0.00, 1),
+  (45, 5, 14, '2025-11-20 09:00:00', '2025-12-20 23:59:59', NULL, 'BORROWED', 0.00, 1),
+  (46, 7, 23, '2025-12-01 11:00:00', '2025-12-31 23:59:59', NULL, 'BORROWED', 0.00, 1),
+  (47, 8, 41, '2025-12-05 15:00:00', '2026-01-04 23:59:59', NULL, 'BORROWED', 0.00, 1),
+  (48, 10, 49, '2025-11-25 10:00:00', '2025-12-25 23:59:59', NULL, 'BORROWED', 0.00, 1),
+  (49, 11, 66, '2025-10-15 08:00:00', '2025-12-14 23:59:59', NULL, 'BORROWED', 0.00, 1),
+  (50, 12, 79, '2025-11-10 13:00:00', '2026-01-09 23:59:59', NULL, 'BORROWED', 0.00, 1),
+  (51, 13, 75, '2025-12-20 16:00:00', '2026-01-19 23:59:59', NULL, 'BORROWED', 0.00, 0),
+  (52, 15, 33, '2025-12-12 09:00:00', '2026-01-01 23:59:59', NULL, 'BORROWED', 0.00, 1),
+  (53, 16, 62, '2025-11-30 14:00:00', '2025-12-20 23:59:59', NULL, 'BORROWED', 0.00, 1),
+  (54, 19, 83, '2025-12-25 10:00:00', '2026-01-14 23:59:59', NULL, 'BORROWED', 0.00, 1);
 
 -- 已按时归还的记录（10条）
 INSERT INTO borrow_record (id, reader_id, book_copy_id, borrow_date, due_date, return_date, status, fine_amount, is_overdue) VALUES
@@ -280,4 +310,30 @@ INSERT INTO fine_payment (id, reader_id, borrow_record_id, amount, pay_date, rem
   (9, 16, 40, 2.00, NOW(), '缴清剩余罚款'),
   (10, 2, NULL, 2.00, NOW() - INTERVAL 10 DAY, '一次性缴清所有罚款'),
   (11, 6, NULL, 0.50, NOW() - INTERVAL 5 DAY, '补缴剩余罚款');
+
+-- 更新逾期借阅记录的馆藏状态
+UPDATE book_copy SET status = 'BORROWED' WHERE id IN (2, 5, 14, 23, 41, 49, 66, 79, 75, 33, 62, 83, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114);
+
+-- 更新读者的借阅数量以匹配逾期记录
+UPDATE reader SET borrowed_count = 
+  CASE id
+    WHEN 1 THEN 2
+    WHEN 2 THEN 1
+    WHEN 5 THEN 3
+    WHEN 7 THEN 4
+    WHEN 8 THEN 2
+    WHEN 10 THEN 5
+    WHEN 11 THEN 4
+    WHEN 12 THEN 6
+    WHEN 13 THEN 3
+    WHEN 15 THEN 3
+    WHEN 16 THEN 3
+    WHEN 19 THEN 1
+    WHEN 20 THEN 2
+    WHEN 21 THEN 1
+    WHEN 22 THEN 3
+    WHEN 23 THEN 1
+    ELSE borrowed_count
+  END
+WHERE id IN (1, 2, 5, 7, 8, 10, 11, 12, 13, 15, 16, 19, 20, 21, 22, 23);
 
