@@ -22,21 +22,37 @@ public class AuthController {
     }
 
     public static class LoginRequest {
-        public String username;
-        public String password;
+        private String username;
+        private String password;
+
+        public String getUsername() {
+            return username;
+        }
+
+        public void setUsername(String username) {
+            this.username = username;
+        }
+
+        public String getPassword() {
+            return password;
+        }
+
+        public void setPassword(String password) {
+            this.password = password;
+        }
     }
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest request) {
-        SysUser user = sysUserRepository.findByUsername(request.username).orElse(null);
+        SysUser user = sysUserRepository.findByUsername(request.getUsername()).orElse(null);
         if (user == null) {
             return ResponseEntity.badRequest().body("用户名或密码错误");
         }
         String encoded = user.getPasswordHash();
-        if (!passwordEncoder.matches(request.password, encoded)) {
+        if (!passwordEncoder.matches(request.getPassword(), encoded)) {
             return ResponseEntity.badRequest().body("用户名或密码错误");
         }
-        Map<String, Object> result = new HashMap<String, Object>();
+        Map<String, Object> result = new HashMap<>();
         result.put("id", user.getId());
         result.put("username", user.getUsername());
         result.put("role", user.getRole());
