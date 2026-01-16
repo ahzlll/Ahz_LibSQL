@@ -23,8 +23,8 @@ public class FineService {
     }
 
     @Transactional
-    public void payFine(Long readerId, double amount, String remark) {
-        Reader reader = readerRepository.findById(readerId)
+    public void payFine(String readerNo, double amount, String remark) {
+        Reader reader = readerRepository.findByReaderNo(readerNo)
                 .orElseThrow(() -> new RuntimeException("读者不存在"));
         if (amount <= 0) {
             throw new RuntimeException("金额必须大于 0");
