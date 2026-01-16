@@ -14,12 +14,6 @@
         <div class="header-content">
           <h1>AhzLib 图书馆</h1>
           <p>安静阅读 · 高效管理</p>
-          <div class="header-meta">
-            <span id="header-clock"></span>
-            <span class="header-tip"
-              >小贴士：新增图书或读者后，记得及时维护读者类别与借阅规则</span
-            >
-          </div>
         </div>
         <div class="header-plant plant-left"></div>
         <div class="header-plant plant-right"></div>
@@ -107,18 +101,18 @@
                 <div class="stat-label">当前在借</div>
                 <div class="stat-value" id="stat-borrowed">-</div>
               </div>
-            </div>
-            <div class="card tips-card">
-              <h3>快速开始</h3>
-              <ol>
-                <li>
-                  在「读者类别」中配置借阅规则（最大借书数、借阅天数、罚款标准）。
-                </li>
-                <li>
-                  在「作者」「出版社」「图书信息」「馆藏信息」中录入基础数据。
-                </li>
-                <li>使用「图书借阅」「图书归还」模块完成日常业务。</li>
-              </ol>
+              <div class="card stat-card">
+                <div class="stat-label">未缴费总数</div>
+                <div class="stat-value" id="stat-unpaid-count">-</div>
+              </div>
+              <div class="card stat-card">
+                <div class="stat-label">未缴费总金额</div>
+                <div class="stat-value" id="stat-unpaid-total">-</div>
+              </div>
+              <div class="card stat-card">
+                <div class="stat-label">逾期总数</div>
+                <div class="stat-value" id="stat-overdue">-</div>
+              </div>
             </div>
           </section>
 
@@ -129,22 +123,6 @@
               <button class="btn btn-primary" id="btn-add-reader">
                 新增读者
               </button>
-            </div>
-            <div class="card">
-              <table class="data-table">
-                <thead>
-                  <tr>
-                    <th>ID</th>
-                    <th>证号</th>
-                    <th>姓名</th>
-                    <th>类别</th>
-                    <th>已借数量</th>
-                    <th>总罚款</th>
-                    <th>操作</th>
-                  </tr>
-                </thead>
-                <tbody id="readers-tbody"></tbody>
-              </table>
             </div>
             <div
               class="card form-card"
@@ -197,6 +175,22 @@
                 <p class="form-message" id="reader-form-message"></p>
               </form>
             </div>
+            <div class="card">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>证号</th>
+                    <th>姓名</th>
+                    <th>类别</th>
+                    <th>已借数量</th>
+                    <th>总罚款</th>
+                    <th>操作</th>
+                  </tr>
+                </thead>
+                <tbody id="readers-tbody"></tbody>
+              </table>
+            </div>
           </section>
 
           <!-- 其他模块的容器（读者类别、出版社、作者、图书、馆藏、借阅、归还、罚款） -->
@@ -205,7 +199,51 @@
             class="content-view"
             style="display: none"
           >
-            <h2>读者类别</h2>
+            <div class="view-header">
+              <h2>读者类别</h2>
+              <button class="btn btn-primary" id="btn-add-reader-type">
+                新增读者类别
+              </button>
+            </div>
+            <div
+              class="card form-card"
+              id="reader-type-form-card"
+              style="display: none"
+            >
+              <h3 id="reader-type-form-title">新增读者类别</h3>
+              <form id="reader-type-form">
+                <input type="hidden" id="reader-type-id" />
+                <div class="grid grid-2">
+                  <div class="form-group">
+                    <label for="reader-type-name">名称</label>
+                    <input id="reader-type-name" required />
+                  </div>
+                  <div class="form-group">
+                    <label for="reader-type-max-borrow-count">最大借书数</label>
+                    <input id="reader-type-max-borrow-count" type="number" min="1" required />
+                  </div>
+                  <div class="form-group">
+                    <label for="reader-type-max-borrow-days">最大借阅天数</label>
+                    <input id="reader-type-max-borrow-days" type="number" min="1" required />
+                  </div>
+                  <div class="form-group">
+                    <label for="reader-type-fine-rate">逾期每日罚款（元）</label>
+                    <input id="reader-type-fine-rate" type="number" min="0" step="0.01" required />
+                  </div>
+                </div>
+                <div class="form-actions">
+                  <button type="submit" class="btn btn-primary">保存</button>
+                  <button
+                    type="button"
+                    class="btn btn-ghost"
+                    id="cancel-reader-type-edit"
+                  >
+                    取消
+                  </button>
+                </div>
+                <p class="form-message" id="reader-type-form-message"></p>
+              </form>
+            </div>
             <div class="card">
               <table class="data-table">
                 <thead>
@@ -214,7 +252,8 @@
                     <th>名称</th>
                     <th>最大借书数</th>
                     <th>最大借阅天数</th>
-                    <th>每日罚款</th>
+                    <th>逾期每日罚款</th>
+                    <th>操作</th>
                   </tr>
                 </thead>
                 <tbody id="reader-types-tbody"></tbody>
@@ -227,7 +266,55 @@
             class="content-view"
             style="display: none"
           >
-            <h2>出版社管理</h2>
+            <div class="view-header">
+              <h2>出版社管理</h2>
+              <button class="btn btn-primary" id="btn-add-publisher">
+                新增出版社
+              </button>
+            </div>
+            <div
+              class="card form-card"
+              id="publisher-form-card"
+              style="display: none"
+            >
+              <h3 id="publisher-form-title">新增出版社</h3>
+              <form id="publisher-form">
+                <input type="hidden" id="publisher-id" />
+                <div class="grid grid-2">
+                  <div class="form-group">
+                    <label for="publisher-name">名称</label>
+                    <input id="publisher-name" required />
+                  </div>
+                  <div class="form-group">
+                    <label for="publisher-phone">电话</label>
+                    <input id="publisher-phone" />
+                  </div>
+                  <div class="form-group">
+                    <label for="publisher-address">地址</label>
+                    <input id="publisher-address" />
+                  </div>
+                  <div class="form-group">
+                    <label for="publisher-contact">联系人</label>
+                    <input id="publisher-contact" />
+                  </div>
+                  <div class="form-group" style="grid-column: 1 / -1">
+                    <label for="publisher-remark">备注</label>
+                    <input id="publisher-remark" />
+                  </div>
+                </div>
+                <div class="form-actions">
+                  <button type="submit" class="btn btn-primary">保存</button>
+                  <button
+                    type="button"
+                    class="btn btn-ghost"
+                    id="cancel-publisher-edit"
+                  >
+                    取消
+                  </button>
+                </div>
+                <p class="form-message" id="publisher-form-message"></p>
+              </form>
+            </div>
             <div class="card">
               <table class="data-table">
                 <thead>
@@ -236,6 +323,7 @@
                     <th>名称</th>
                     <th>电话</th>
                     <th>联系人</th>
+                    <th>操作</th>
                   </tr>
                 </thead>
                 <tbody id="publishers-tbody"></tbody>
@@ -244,7 +332,47 @@
           </section>
 
           <section id="authors-view" class="content-view" style="display: none">
-            <h2>作者管理</h2>
+            <div class="view-header">
+              <h2>作者管理</h2>
+              <button class="btn btn-primary" id="btn-add-author">
+                新增作者
+              </button>
+            </div>
+            <div
+              class="card form-card"
+              id="author-form-card"
+              style="display: none"
+            >
+              <h3 id="author-form-title">新增作者</h3>
+              <form id="author-form">
+                <input type="hidden" id="author-id" />
+                <div class="grid grid-2">
+                  <div class="form-group">
+                    <label for="author-name">姓名</label>
+                    <input id="author-name" required />
+                  </div>
+                  <div class="form-group">
+                    <label for="author-country">国家</label>
+                    <input id="author-country" />
+                  </div>
+                  <div class="form-group" style="grid-column: 1 / -1">
+                    <label for="author-remark">备注</label>
+                    <input id="author-remark" />
+                  </div>
+                </div>
+                <div class="form-actions">
+                  <button type="submit" class="btn btn-primary">保存</button>
+                  <button
+                    type="button"
+                    class="btn btn-ghost"
+                    id="cancel-author-edit"
+                  >
+                    取消
+                  </button>
+                </div>
+                <p class="form-message" id="author-form-message"></p>
+              </form>
+            </div>
             <div class="card">
               <table class="data-table">
                 <thead>
@@ -252,6 +380,7 @@
                     <th>ID</th>
                     <th>姓名</th>
                     <th>国家</th>
+                    <th>操作</th>
                   </tr>
                 </thead>
                 <tbody id="authors-tbody"></tbody>
@@ -260,7 +389,67 @@
           </section>
 
           <section id="books-view" class="content-view" style="display: none">
-            <h2>图书信息</h2>
+            <div class="view-header">
+              <h2>图书信息</h2>
+              <button class="btn btn-primary" id="btn-add-book">
+                新增图书
+              </button>
+            </div>
+            <div
+              class="card form-card"
+              id="book-form-card"
+              style="display: none"
+            >
+              <h3 id="book-form-title">新增图书</h3>
+              <form id="book-form">
+                <input type="hidden" id="book-id" />
+                <div class="grid grid-2">
+                  <div class="form-group">
+                    <label for="book-isbn">ISBN</label>
+                    <input id="book-isbn" required />
+                  </div>
+                  <div class="form-group">
+                    <label for="book-title">书名</label>
+                    <input id="book-title" required />
+                  </div>
+                  <div class="form-group">
+                    <label for="book-publisher">出版社</label>
+                    <select id="book-publisher"></select>
+                  </div>
+                  <div class="form-group">
+                    <label for="book-author">作者</label>
+                    <select id="book-author"></select>
+                  </div>
+                  <div class="form-group">
+                    <label for="book-publish-year">出版年份</label>
+                    <input id="book-publish-year" type="number" />
+                  </div>
+                  <div class="form-group">
+                    <label for="book-category">分类</label>
+                    <input id="book-category" />
+                  </div>
+                  <div class="form-group">
+                    <label for="book-total-copy">总册数</label>
+                    <input id="book-total-copy" type="number" min="0" />
+                  </div>
+                  <div class="form-group">
+                    <label for="book-available-copy">可借册数</label>
+                    <input id="book-available-copy" type="number" min="0" />
+                  </div>
+                </div>
+                <div class="form-actions">
+                  <button type="submit" class="btn btn-primary">保存</button>
+                  <button
+                    type="button"
+                    class="btn btn-ghost"
+                    id="cancel-book-edit"
+                  >
+                    取消
+                  </button>
+                </div>
+                <p class="form-message" id="book-form-message"></p>
+              </form>
+            </div>
             <div class="card">
               <table class="data-table">
                 <thead>
@@ -270,6 +459,7 @@
                     <th>书名</th>
                     <th>总册数</th>
                     <th>可借册数</th>
+                    <th>操作</th>
                   </tr>
                 </thead>
                 <tbody id="books-tbody"></tbody>
@@ -282,7 +472,116 @@
             class="content-view"
             style="display: none"
           >
-            <h2>馆藏信息</h2>
+            <div class="view-header">
+              <h2>馆藏信息</h2>
+              <div style="display: flex; gap: 8px;">
+                <button class="btn btn-primary" id="btn-add-book-copy">
+                  新增馆藏
+                </button>
+                <button class="btn btn-primary" id="btn-batch-add-book-copy">
+                  批量添加
+                </button>
+              </div>
+            </div>
+            <div
+              class="card form-card"
+              id="book-copy-form-card"
+              style="display: none"
+            >
+              <h3 id="book-copy-form-title">新增馆藏</h3>
+              <form id="book-copy-form">
+                <input type="hidden" id="book-copy-id" />
+                <div class="grid grid-2">
+                  <div class="form-group">
+                    <label for="book-copy-barcode">条码</label>
+                    <input id="book-copy-barcode" required />
+                  </div>
+                  <div class="form-group">
+                    <label for="book-copy-book">图书</label>
+                    <select id="book-copy-book" required></select>
+                  </div>
+                  <div class="form-group">
+                    <label for="book-copy-location">位置</label>
+                    <input id="book-copy-location" />
+                  </div>
+                  <div class="form-group">
+                    <label for="book-copy-status">状态</label>
+                    <select id="book-copy-status" required>
+                      <option value="IN_LIBRARY">在馆</option>
+                      <option value="BORROWED">已借出</option>
+                      <option value="LOST">丢失</option>
+                      <option value="DAMAGED">损坏</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="form-actions">
+                  <button type="submit" class="btn btn-primary">保存</button>
+                  <button
+                    type="button"
+                    class="btn btn-ghost"
+                    id="cancel-book-copy-edit"
+                  >
+                    取消
+                  </button>
+                </div>
+                <p class="form-message" id="book-copy-form-message"></p>
+              </form>
+            </div>
+            <div
+              class="card form-card"
+              id="book-copy-batch-form-card"
+              style="display: none"
+            >
+              <h3>批量添加馆藏</h3>
+              <form id="book-copy-batch-form">
+                <div class="grid grid-2">
+                  <div class="form-group">
+                    <label for="batch-book-copy-book">图书</label>
+                    <select id="batch-book-copy-book" required></select>
+                  </div>
+                  <div class="form-group">
+                    <label for="batch-book-copy-count">添加数量</label>
+                    <input
+                      id="batch-book-copy-count"
+                      type="number"
+                      min="1"
+                      max="100"
+                      value="1"
+                      required
+                    />
+                  </div>
+                  <div class="form-group">
+                    <label for="batch-book-copy-barcode-prefix">条码前缀（可选）</label>
+                    <input id="batch-book-copy-barcode-prefix" placeholder="例如：BC001" />
+                    <small style="color: #6c857b; font-size: 13px;">留空将自动生成条码</small>
+                  </div>
+                  <div class="form-group">
+                    <label for="batch-book-copy-location">位置（可选）</label>
+                    <input id="batch-book-copy-location" />
+                  </div>
+                  <div class="form-group">
+                    <label for="batch-book-copy-status">状态</label>
+                    <select id="batch-book-copy-status" required>
+                      <option value="IN_LIBRARY">在馆</option>
+                      <option value="BORROWED">已借出</option>
+                      <option value="LOST">丢失</option>
+                      <option value="DAMAGED">损坏</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="form-actions">
+                  <button type="submit" class="btn btn-primary">批量添加</button>
+                  <button
+                    type="button"
+                    class="btn btn-ghost"
+                    id="cancel-batch-book-copy"
+                  >
+                    取消
+                  </button>
+                </div>
+                <p class="form-message" id="book-copy-batch-form-message"></p>
+              </form>
+            </div>
             <div class="card">
               <table class="data-table">
                 <thead>
@@ -292,6 +591,7 @@
                     <th>图书</th>
                     <th>位置</th>
                     <th>状态</th>
+                    <th>操作</th>
                   </tr>
                 </thead>
                 <tbody id="book-copies-tbody"></tbody>
@@ -321,6 +621,48 @@
                 <p class="form-message" id="borrow-message"></p>
               </form>
             </div>
+
+            <div class="card form-card">
+              <form id="borrow-record-search-form">
+                <div class="grid grid-2">
+                  <div class="form-group">
+                    <label for="borrow-record-keyword">搜索关键字</label>
+                    <input
+                      id="borrow-record-keyword"
+                      placeholder="输入读者证号/姓名 或 图书ISBN/书名"
+                    />
+                  </div>
+                  <div class="form-group">
+                    <div class="form-actions-inline">
+                      <button class="btn btn-primary" type="submit">
+                        搜索借阅记录
+                      </button>
+                    </div>
+                  </div>
+                </div>
+                <p class="form-message" id="borrow-record-message"></p>
+              </form>
+            </div>
+            <div class="card">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>读者证号</th>
+                    <th>读者姓名</th>
+                    <th>图书条码</th>
+                    <th>ISBN</th>
+                    <th>书名</th>
+                    <th>借阅日期</th>
+                    <th>应还日期</th>
+                    <th>归还日期</th>
+                    <th>状态</th>
+                  </tr>
+                </thead>
+                <tbody id="borrow-records-tbody"></tbody>
+              </table>
+              <div id="borrow-records-pagination" style="padding: 16px; display: flex; justify-content: center; align-items: center; gap: 8px; border-top: 1px solid #e0e0e0;"></div>
+            </div>
           </section>
 
           <section id="return-view" class="content-view" style="display: none">
@@ -337,9 +679,10 @@
                     <input id="return-barcode" required />
                   </div>
                   <div class="form-group">
-                    <label>
-                      <input type="checkbox" id="return-lost-damaged" />
-                      损坏 / 遗失
+                    <label class="checkbox-label">
+                      <span class="checkbox-text">损坏</span>
+                      <input type="checkbox" id="return-lost-damaged" class="checkbox-input" />
+                      <span class="checkbox-custom"></span>
                     </label>
                   </div>
                   <div class="form-group">
@@ -361,6 +704,46 @@
                 <p class="form-message" id="return-message"></p>
               </form>
             </div>
+
+            <div class="card form-card">
+              <form id="return-record-search-form">
+                <div class="grid grid-2">
+                  <div class="form-group">
+                    <label for="return-record-keyword">搜索关键字</label>
+                    <input
+                      id="return-record-keyword"
+                      placeholder="输入读者证号/姓名 或 图书ISBN/书名"
+                    />
+                  </div>
+                  <div class="form-group">
+                    <div class="form-actions-inline">
+                      <button class="btn btn-primary" type="submit">
+                        搜索未归还记录
+                      </button>
+                    </div>
+                  </div>
+                </div>
+                <p class="form-message" id="return-record-message"></p>
+              </form>
+            </div>
+            <div class="card">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>读者证号</th>
+                    <th>读者姓名</th>
+                    <th>图书条码</th>
+                    <th>ISBN</th>
+                    <th>书名</th>
+                    <th>借阅日期</th>
+                    <th>应还日期</th>
+                    <th>操作</th>
+                  </tr>
+                </thead>
+                <tbody id="return-records-tbody"></tbody>
+              </table>
+            </div>
           </section>
 
           <section id="fines-view" class="content-view" style="display: none">
@@ -369,8 +752,8 @@
               <form id="fine-form">
                 <div class="grid grid-2">
                   <div class="form-group">
-                    <label for="fine-reader-id">读者ID</label>
-                    <input id="fine-reader-id" type="number" required />
+                    <label for="fine-reader-no">读者证号</label>
+                    <input id="fine-reader-no" required />
                   </div>
                   <div class="form-group">
                     <label for="fine-amount">缴费金额</label>
@@ -395,7 +778,85 @@
                 <p class="form-message" id="fine-message"></p>
               </form>
             </div>
+
+            <h3 style="margin-top: 24px; margin-bottom: 16px;">未缴费记录</h3>
+            <div class="card form-card">
+              <form id="unpaid-fine-search-form">
+                <div class="grid grid-2">
+                  <div class="form-group">
+                    <label for="unpaid-fine-keyword">搜索关键字</label>
+                    <input
+                      id="unpaid-fine-keyword"
+                      placeholder="输入读者证号/姓名"
+                    />
+                  </div>
+                  <div class="form-group">
+                    <div class="form-actions-inline">
+                      <button class="btn btn-primary" type="submit">
+                        搜索未缴费记录
+                      </button>
+                    </div>
+                  </div>
+                </div>
+                <p class="form-message" id="unpaid-fine-message"></p>
+              </form>
+            </div>
+            <div class="card">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>读者证号</th>
+                    <th>读者姓名</th>
+                    <th>读者类别</th>
+                    <th>联系电话</th>
+                    <th>未缴费金额（元）</th>
+                    <th>操作</th>
+                  </tr>
+                </thead>
+                <tbody id="unpaid-fine-tbody"></tbody>
+              </table>
+            </div>
+
+            <h3 style="margin-top: 24px; margin-bottom: 16px;">缴费历史记录</h3>
+            <div class="card form-card">
+              <form id="fine-history-search-form">
+                <div class="grid grid-2">
+                  <div class="form-group">
+                    <label for="fine-history-keyword">搜索关键字</label>
+                    <input
+                      id="fine-history-keyword"
+                      placeholder="输入读者证号/姓名"
+                    />
+                  </div>
+                  <div class="form-group">
+                    <div class="form-actions-inline">
+                      <button class="btn btn-primary" type="submit">
+                        搜索罚款记录
+                      </button>
+                    </div>
+                  </div>
+                </div>
+                <p class="form-message" id="fine-history-message"></p>
+              </form>
+            </div>
+            <div class="card">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>读者证号</th>
+                    <th>读者姓名</th>
+                    <th>缴费金额</th>
+                    <th>缴费日期</th>
+                    <th>备注</th>
+                  </tr>
+                </thead>
+                <tbody id="fine-history-tbody"></tbody>
+              </table>
+            </div>
           </section>
+
+          
         </section>
       </main>
     </div>
