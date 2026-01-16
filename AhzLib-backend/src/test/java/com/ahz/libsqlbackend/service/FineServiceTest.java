@@ -62,7 +62,7 @@ class FineServiceTest {
         double initialFine = testReader.getTotalFine();
         double payAmount = 50.0;
 
-        fineService.payFine(testReader.getId(), payAmount, "测试缴费");
+        fineService.payFine(testReader.getReaderNo(), payAmount, "测试缴费");
 
         // 验证读者罚款已减少
         Reader updatedReader = readerRepository.findById(testReader.getId())
@@ -83,7 +83,7 @@ class FineServiceTest {
         // 测试全额缴费
         double payAmount = 100.0;
 
-        fineService.payFine(testReader.getId(), payAmount, "全额缴费");
+        fineService.payFine(testReader.getReaderNo(), payAmount, "全额缴费");
 
         Reader updatedReader = readerRepository.findById(testReader.getId())
                 .orElseThrow(() -> new RuntimeException("读者未找到"));
@@ -95,7 +95,7 @@ class FineServiceTest {
         // 测试缴费金额超过总罚款（应该只扣除总罚款金额）
         double payAmount = 200.0; // 超过总罚款
 
-        fineService.payFine(testReader.getId(), payAmount, "超额缴费");
+        fineService.payFine(testReader.getReaderNo(), payAmount, "超额缴费");
 
         Reader updatedReader = readerRepository.findById(testReader.getId())
                 .orElseThrow(() -> new RuntimeException("读者未找到"));
@@ -105,11 +105,11 @@ class FineServiceTest {
     @Test
     void testPayFineInvalidAmount() {
         // 测试无效金额（负数或0）
-        assertThatThrownBy(() -> fineService.payFine(testReader.getId(), -10.0, "无效金额"))
+        assertThatThrownBy(() -> fineService.payFine(testReader.getReaderNo(), -10.0, "无效金额"))
                 .isInstanceOf(RuntimeException.class)
                 .hasMessageContaining("金额必须大于 0");
 
-        assertThatThrownBy(() -> fineService.payFine(testReader.getId(), 0.0, "零金额"))
+        assertThatThrownBy(() -> fineService.payFine(testReader.getReaderNo(), 0.0, "零金额"))
                 .isInstanceOf(RuntimeException.class)
                 .hasMessageContaining("金额必须大于 0");
     }
@@ -117,7 +117,7 @@ class FineServiceTest {
     @Test
     void testPayFineReaderNotFound() {
         // 测试读者不存在的情况
-        assertThatThrownBy(() -> fineService.payFine(999L, 50.0, "测试"))
+        assertThatThrownBy(() -> fineService.payFine("NONEXISTENT", 50.0, "测试"))
                 .isInstanceOf(RuntimeException.class)
                 .hasMessageContaining("读者不存在");
     }
@@ -127,12 +127,12 @@ class FineServiceTest {
         // 测试多次缴费
         double initialFine = testReader.getTotalFine();
 
-        fineService.payFine(testReader.getId(), 30.0, "第一次缴费");
+        fineService.payFine(testReader.getReaderNo(), 30.0, "第一次缴费");
         Reader reader1 = readerRepository.findById(testReader.getId())
                 .orElseThrow(() -> new RuntimeException("读者未找到"));
         assertThat(reader1.getTotalFine()).isEqualTo(initialFine - 30.0);
 
-        fineService.payFine(testReader.getId(), 40.0, "第二次缴费");
+        fineService.payFine(testReader.getReaderNo(), 40.0, "第二次缴费");
         Reader reader2 = readerRepository.findById(testReader.getId())
                 .orElseThrow(() -> new RuntimeException("读者未找到"));
         assertThat(reader2.getTotalFine()).isEqualTo(initialFine - 70.0);
@@ -150,7 +150,7 @@ class FineServiceTest {
         testReader.setTotalFine(0.0);
         entityManager.persistAndFlush(testReader);
 
-        fineService.payFine(testReader.getId(), 10.0, "无罚款缴费");
+        fineService.payFine(testReader.getReaderNo(), 10.0, "无罚款缴费");
 
         Reader updatedReader = readerRepository.findById(testReader.getId())
                 .orElseThrow(() -> new RuntimeException("读者未找到"));

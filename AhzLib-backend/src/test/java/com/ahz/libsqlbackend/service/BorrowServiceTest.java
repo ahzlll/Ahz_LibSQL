@@ -179,9 +179,9 @@ class BorrowServiceTest {
         borrowService.borrowBook("R2026001", "BC0001");
 
         // 测试成功还书
-        double fine = borrowService.returnBook("R2026001", "BC0001", false, 0.0);
+        BorrowService.ReturnResult result = borrowService.returnBook("R2026001", "BC0001", false, 0.0);
 
-        assertThat(fine).isEqualTo(0.0);
+        assertThat(result.getFine()).isEqualTo(0.0);
 
         // 验证馆藏本状态已更新
         BookCopy updatedCopy = bookCopyRepository.findByBarcode("BC0001")
@@ -212,9 +212,10 @@ class BorrowServiceTest {
         entityManager.persistAndFlush(record);
 
         // 测试超期还书
-        double fine = borrowService.returnBook("R2026001", "BC0001", false, 0.0);
+        BorrowService.ReturnResult result = borrowService.returnBook("R2026001", "BC0001", false, 0.0);
 
-        assertThat(fine).isGreaterThan(0.0); // 应该有罚款
+        assertThat(result.getFine()).isGreaterThan(0.0); // 应该有罚款
+        assertThat(result.isOverdue()).isTrue(); // 应该是逾期
 
         // 验证读者总罚款已更新
         Reader updatedReader = readerRepository.findById(testReader.getId())
@@ -228,9 +229,10 @@ class BorrowServiceTest {
         borrowService.borrowBook("R2026001", "BC0001");
 
         // 测试丢失还书
-        double fine = borrowService.returnBook("R2026001", "BC0001", true, 50.0);
+        BorrowService.ReturnResult result = borrowService.returnBook("R2026001", "BC0001", true, 50.0);
 
-        assertThat(fine).isEqualTo(50.0);
+        assertThat(result.getFine()).isEqualTo(50.0);
+        assertThat(result.isLost()).isTrue(); // 应该是丢失
 
         // 验证馆藏本状态为丢失
         BookCopy updatedCopy = bookCopyRepository.findByBarcode("BC0001")
