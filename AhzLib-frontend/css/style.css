@@ -159,6 +159,76 @@ body {
   background: #ffffff;
 }
 
+/* 自定义复选框样式 */
+.checkbox-label {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  margin-bottom: 0 !important;
+  padding: 12px 16px;
+  border-radius: 8px;
+  background: #f8fbf9;
+  border: 1px solid #cdd9d3;
+  transition: all 0.15s ease;
+}
+
+.checkbox-label:hover {
+  background: #f0f7f3;
+  border-color: #a8d4c0;
+}
+
+.checkbox-input {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+  margin: 0;
+  padding: 0;
+}
+
+.checkbox-custom {
+  position: relative;
+  width: 20px;
+  height: 20px;
+  min-width: 20px;
+  border: 2px solid #cdd9d3;
+  border-radius: 4px;
+  background: #ffffff;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.checkbox-input:checked + .checkbox-custom {
+  background: linear-gradient(120deg, #6ac28c, #8ed1a4);
+  border-color: #6ac28c;
+}
+
+.checkbox-input:checked + .checkbox-custom::after {
+  content: '';
+  position: absolute;
+  width: 5px;
+  height: 10px;
+  border: solid white;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+  margin-top: -2px;
+}
+
+.checkbox-text {
+  font-size: 15px;
+  font-weight: 500;
+  color: #23423a;
+  user-select: none;
+}
+
+.checkbox-input:focus + .checkbox-custom {
+  box-shadow: 0 0 0 3px rgba(106, 194, 140, 0.2);
+}
+
 .btn {
   border-radius: 999px;
   border: none;
@@ -181,6 +251,11 @@ body {
 
 .btn-primary:hover {
   background: linear-gradient(120deg, #5bb279, #7fc292);
+}
+
+.btn-small {
+  padding: 6px 12px;
+  font-size: 13px;
 }
 
 .btn-ghost {
